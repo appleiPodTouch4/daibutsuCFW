@@ -1,3 +1,4 @@
+
 name: Compile xpwn and idevicererestore (Windows)
 on: [push]
 jobs:
@@ -26,7 +27,11 @@ jobs:
         run: |
           cd ./src/xpwn
           mkdir build && cd build
-          cmake -G "Unix Makefiles" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
+          cmake -G "Unix Makefiles" \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+            -DZLIB_INCLUDE_DIR=/mingw64/include \
+            -DZLIB_LIBRARY=/mingw64/lib/libz.a \
+            ..
           make -j$(nproc)
           mkdir -p ../../../bin
           cp -r bin/* ../../../bin/ 2>/dev/null || cp *.exe ../../../bin/ 2>/dev/null || true
