@@ -56,7 +56,7 @@ jobs:
             cmake
             patch
             gcc
-            libpng-devel
+            libpng
             openssl-devel
             zlib-devel
 
