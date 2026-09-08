@@ -26,7 +26,7 @@ jobs:
         run: |
           cd ./src/xpwn
           mkdir build && cd build
-          cmake -G "Unix Makefiles" ..
+          cmake -G "Unix Makefiles" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
           make -j$(nproc)
           mkdir -p ../../../bin
           cp -r bin/* ../../../bin/ 2>/dev/null || cp *.exe ../../../bin/ 2>/dev/null || true
