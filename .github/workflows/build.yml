@@ -1,43 +1,6 @@
-name: Compile xpwn and idevicererestore
+name: Compile xpwn and idevicererestore (Windows)
 on: [push]
 jobs:
-  xpwn-linux:
-    strategy:
-      matrix:
-        arch:
-          - runner: ubuntu-22.04
-            name: x86_64
-          - runner: ubuntu-22.04-arm
-            name: aarch64
-
-    name: xpwn-linux-${{ matrix.arch.name }}
-    runs-on: ${{ matrix.arch.runner }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Run compile script
-        run: |
-          cd ./src/xpwn
-          ./compile.sh all
-          mv bin/ ../..
-          cd ../..
-
-      - name: Zip files
-        run: zip -r xpwn_linux-${{ matrix.arch.name }}.zip bin/
-
-      - name: Update latest release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload latest \
-            xpwn_linux-${{ matrix.arch.name }}.zip \
-            --clobber -R ${{ github.repository }}
-
-          gh release edit latest \
-            --title "Latest" \
-            --target ${{ github.sha }} -R ${{ github.repository }}
-
   xpwn-win:
     runs-on: windows-latest
     defaults:
@@ -48,51 +11,30 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          msystem: MSYS
+          msystem: MINGW64
           update: true
           install: >-
             git
             make
             cmake
-            patch
-            gcc
-            libpng
-            openssl-devel
-            zlib-devel
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-libpng
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-zlib
 
-      - name: Run compile script
+      - name: Build with CMake directly
         run: |
           cd ./src/xpwn
-          ./compile.sh all
-          mv bin/ ../..
-          cd ../..
+          mkdir build && cd build
+          cmake -G "Unix Makefiles" ..
+          make -j$(nproc)
+          mkdir -p ../../../bin
+          cp -r bin/* ../../../bin/ 2>/dev/null || cp *.exe ../../../bin/ 2>/dev/null || true
 
       - uses: actions/upload-artifact@v4
         with:
           name: xpwn_win
           path: bin/
-
-  idevicererestore-linux:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Run compile script
-        run: |
-          cd ./src/idevicererestore
-          ./compile.sh patch
-          mv idevicerestore/bin ../..
-          cd ../..
-
-      - name: Zip files
-        run: zip -r idevicererestore_linux.zip bin/
-
-      - name: Update latest release
-        uses: pyTooling/Actions/releaser@main
-        with:
-          tag: latest
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: idevicererestore_linux.zip
 
   idevicererestore-win:
     runs-on: windows-latest
