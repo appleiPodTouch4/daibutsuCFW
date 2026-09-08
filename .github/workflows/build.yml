@@ -29,14 +29,13 @@ jobs:
           mkdir build && cd build
           cmake -G "Unix Makefiles" \
             -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+            -DOPENSSL_ROOT_DIR=/mingw64 \
             -DZLIB_INCLUDE_DIR=/mingw64/include \
             -DZLIB_LIBRARY=/mingw64/lib/libz.a \
             -DBZIP2_INCLUDE_DIR=/mingw64/include \
             -DBZIP2_LIBRARIES=/mingw64/lib/libbz2.a \
             -DPNG_PNG_INCLUDE_DIR=/mingw64/include \
             -DPNG_LIBRARY=/mingw64/lib/libpng.a \
-            -DOPENSSL_CRYPTO_LIBRARY=/mingw64/lib/libcrypto.dll.a \
-            -DOPENSSL_INCLUDE_DIR=/mingw64/include \
             ..
           make -j$(nproc)
           mkdir -p ../../../bin
